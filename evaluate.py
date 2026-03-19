@@ -31,15 +31,18 @@ logging.set_verbosity_error()
 
 
 def evaluate(sample: int = 200, seed: int = 42) -> None:
+    """Evaluate retrieval quality using Recall@K and MRR."""
+    # make sure index exists
     if not FAISS_INDEX_FILE.exists() or not METADATA_FILE.exists():
-        raise FileNotFoundError("Index not found. Run  python build_index.py  first.")
+        raise FileNotFoundError("Index not found. Run python build_index.py first.")
 
+    # load index + metadata
     index = faiss.read_index(str(FAISS_INDEX_FILE))
     meta = load_metadata()
     entries = meta["entries"]
     n = len(entries)
 
-    # ── Sample selection ──────────────────────────────────────────────────────
+    # sample queries
     indices = list(range(n))
     if sample and sample < n:
         random.seed(seed)
@@ -49,24 +52,26 @@ def evaluate(sample: int = 200, seed: int = 42) -> None:
 
     queries = [entries[i]["description"] for i in indices]
 
-    # ── Batch embed all queries at once ───────────────────────────────────────
+    # embed all queries
     q_vecs = embed_texts(queries, batch_size=64)
 
-    # ── Search at max K = 10 ──────────────────────────────────────────────────
+    # search top-K
     K = 10
     scores_all, ids_all = index.search(q_vecs, K)
 
-    # ── Compute metrics ───────────────────────────────────────────────────────
+    # compute metrics
     reciprocal_ranks: list[float] = []
-    found_at: list[int] = []        # rank where correct answer was found (1-indexed), or K+1
+    found_at: list[int] = []  # rank where match is found (1-indexed)
 
     for q_pos, true_idx in enumerate(indices):
-        retrieved = ids_all[q_pos].tolist()         # length K
+        retrieved = ids_all[q_pos].tolist()
         rank = K + 1
+
         for r, ret_idx in enumerate(retrieved, start=1):
             if ret_idx == true_idx:
                 rank = r
                 break
+
         found_at.append(rank)
         reciprocal_ranks.append(1.0 / rank if rank <= K else 0.0)
 
@@ -75,21 +80,25 @@ def evaluate(sample: int = 200, seed: int = 42) -> None:
     print("\n" + "=" * 50)
     print("  Retrieval Evaluation Results")
     print("=" * 50)
+
     for k in (1, 5, 10):
         recall = (found_at_arr <= k).mean()
         print(f"  Recall@{k:<2}  : {recall:.4f}  ({(found_at_arr <= k).sum()}/{len(indices)})")
+
     mrr = np.mean(reciprocal_ranks)
     print(f"  MRR        : {mrr:.4f}")
     print("=" * 50)
 
-    # ── A few illustrative examples ───────────────────────────────────────────
+    # quick examples
     print("\nSample results (first 5 queries):")
     for i in range(min(5, len(indices))):
         true_idx = indices[i]
         rank = found_at[i]
+
         q_desc = entries[true_idx]["description"]
         top1_idx = ids_all[i][0]
         top1_desc = entries[top1_idx]["description"]
+
         print(f"\n  Query    : {q_desc[:80]}")
         print(f"  Top-1    : {top1_desc[:80]}")
         print(f"  Correct? : {'YES (rank 1)' if rank == 1 else f'NO (found at rank {rank})'}")
@@ -97,6 +106,7 @@ def evaluate(sample: int = 200, seed: int = 42) -> None:
 
 
 if __name__ == "__main__":
+    # CLI
     parser = argparse.ArgumentParser(description="Evaluate SVG retrieval quality.")
     parser.add_argument(
         "--sample",
@@ -105,5 +115,6 @@ if __name__ == "__main__":
         help="Number of queries to evaluate (0 = all).",
     )
     parser.add_argument("--seed", type=int, default=42)
+
     args = parser.parse_args()
     evaluate(args.sample, args.seed)
