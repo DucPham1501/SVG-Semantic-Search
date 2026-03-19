@@ -1,0 +1,141 @@
+Your task is to describe an SVG image in ONE short sentence.
+
+Rules:
+- Output exactly **one sentence**.
+- Describe the **visual scene represented by the SVG**.
+- Mention **important objects, patterns, or scenery**.
+- Mention **colors if they are important**.
+- Do **not mention SVG, code, or tags**.
+- Do **not explain reasoning**.
+- Keep the description **short (5 to 10 words only)**.
+- no full sentence
+- no explanation 
+- Do NOT start with "This SVG"
+- Do NOT mention SVG or code
+- Do **not answer "This SVG represents"
+
+## Examples
+
+### Example 1
+
+SVG:
+```svg
+<svg viewBox="0 0 200 200" width="200" height="200" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background for the sky -->
+  <rect x="0" y="0" width="200" height="100" fill="orange" opacity="0.7"/>
+  
+  <!-- Sun -->
+  <circle cx="100" cy="50" r="30" fill="yellow" opacity="0.8"/>
+  
+  <!-- Wheat fields -->
+  <rect x="0" y="100" width="200" height="100" fill="goldenrod"/>
+  
+  <!-- Wheat stalks -->
+  <g stroke="saddlebrown" stroke-width="2">
+    <line x1="30" y1="100" x2="30" y2="150"/>
+    <line x1="50" y1="100" x2="50" y2="150"/>
+    <line x1="70" y1="100" x2="70" y2="150"/>
+    <line x1="90" y1="100" x2="90" y2="150"/>
+    <line x1="110" y1="100" x2="110" y2="150"/>
+    <line x1="130" y1="100" x2="130" y2="150"/>
+    <line x1="150" y1="100" x2="150" y2="150"/>
+    <line x1="170" y1="100" x2="170" y2="150"/>
+  </g>
+  
+  <!-- Wheat heads -->
+  <g fill="gold" stroke="saddlebrown" stroke-width="0.5">
+    <ellipse cx="30" cy="95" rx="5" ry="10"/>
+    <ellipse cx="50" cy="95" rx="5" ry="10"/>
+    <ellipse cx="70" cy="95" rx="5" ry="10"/>
+    <ellipse cx="90" cy="95" rx="5" ry="10"/>
+    <ellipse cx="110" cy="95" rx="5" ry="10"/>
+    <ellipse cx="130" cy="95" rx="5" ry="10"/>
+    <ellipse cx="150" cy="95" rx="5" ry="10"/>
+    <ellipse cx="170" cy="95" rx="5" ry="10"/>
+  </g>
+</svg>
+```
+
+Description  :
+Golden wheat fields under a setting sun
+
+---
+
+### Example 2
+
+SVG:
+```svg
+<svg viewBox="0 0 200 200" width="200" height="200" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="skyGradient" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="skyblue" />
+      <stop offset="100%" stop-color="lightblue" />
+    </linearGradient>
+    <linearGradient id="lagoonGradient" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="turquoise" />
+      <stop offset="100%" stop-color="mediumturquoise" />
+    </linearGradient>
+  </defs>
+  <rect x="0" y="0" width="200" height="100" fill="url(#skyGradient)" />
+  <rect x="0" y="100" width="200" height="100" fill="url(#lagoonGradient)" />
+</svg>
+```
+
+Description  :
+turquoise lagoon reflecting a clear sky
+
+---
+
+### Example 3
+
+SVG
+```svg
+<svg viewBox="0 0 200 100" width="200" height="100" xmlns="http://www.w3.org/2000/svg">
+  <!-- Sky -->
+  <rect x="0" y="0" width="200" height="100" fill="skyblue" />
+  
+  <!-- Mountains -->
+  <polygon points="30,80 70,30 110,80" fill="white" stroke="gray" stroke-width="1" />
+  <polygon points="90,80 130,40 170,80" fill="white" stroke="gray" stroke-width="1" />
+  
+  <!-- Ground -->
+  <rect x="0" y="80" width="200" height="20" fill="lightgray" />
+</svg>
+
+```
+
+Description:  
+Snowy mountains under a clear blue sky
+
+---
+
+### Example 4
+
+SVG:
+```svg
+<svg viewBox="0 0 200 200" width="200" height="200" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="crimsonGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:crimson;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:gold;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <g transform="translate(100,100)">
+    <path d="M0,0 C20,-20 40,-20 60,0 S100,20 120,0" fill="none" stroke="url(#crimsonGradient)" stroke-width="4" transform="rotate(0)" />
+    <path d="M0,0 C20,-20 40,-20 60,0 S100,20 120,0" fill="none" stroke="url(#crimsonGradient)" stroke-width="4" transform="rotate(60)" />
+    <path d="M0,0 C20,-20 40,-20 60,0 S100,20 120,0" fill="none" stroke="url(#crimsonGradient)" stroke-width="4" transform="rotate(120)" />
+    <path d="M0,0 C20,-20 40,-20 60,0 S100,20 120,0" fill="none" stroke="url(#crimsonGradient)" stroke-width="4" transform="rotate(180)" />
+    <path d="M0,0 C20,-20 40,-20 60,0 S100,20 120,0" fill="none" stroke="url(#crimsonGradient)" stroke-width="4" transform="rotate(240)" />
+    <path d="M0,0 C20,-20 40,-20 60,0 S100,20 120,0" fill="none" stroke="url(#crimsonGradient)" stroke-width="4" transform="rotate(300)" />
+  </g>
+</svg>
+```
+Description  :
+Crimson and gold spirals intertwining
+
+Now describe this SVG:
+
+SVG:
+{svg_code}
+
+Description:
