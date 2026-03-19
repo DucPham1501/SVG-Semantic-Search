@@ -21,29 +21,33 @@ logging.set_verbosity_error()
 
 def search(query: str, top_k: int = 5, show_svg: bool = False) -> list[dict]:
     """
-    Return the top-k most semantically similar SVGs for *query*.
+    Search top-k most similar SVGs for a query.
 
-    Each result dict contains:
-        rank        int   (1-indexed)
-        score       float (cosine similarity)
-        description str
-        svg         str   (SVG markup)
-        id          int   (row index in original dataset)
-    """
+    Parameters:
+        query : str
+            Input text query.
+        top_k : int, default=5
+            Number of results to return.
+        show_svg : bool, default=False
+            Whether to include SVG content in output.
+
+    Returns: 
+        list[dict]
+            List of results with fields: rank, score, description, svg, id.
+        """
+    # make sure index exists
     if not FAISS_INDEX_FILE.exists() or not METADATA_FILE.exists():
-        sys.exit(
-            "Index not found. Run  python build_index.py  first."
-        )
+        sys.exit("Index not found. Run python build_index.py first.")
 
-    # ── Load index + metadata ─────────────────────────────────────────────────
+    # load index + metadata
     index = faiss.read_index(str(FAISS_INDEX_FILE))
     meta = load_metadata()
     entries = meta["entries"]
 
-    # ── Embed query ───────────────────────────────────────────────────────────
-    q_vec = embed_texts([query])  # shape (1, dim)
+    # embed query
+    q_vec = embed_texts([query])  # (1, dim)
 
-    # ── Search ────────────────────────────────────────────────────────────────
+    # search
     scores, ids = index.search(q_vec, top_k)
 
     results = []
@@ -63,6 +67,7 @@ def search(query: str, top_k: int = 5, show_svg: bool = False) -> list[dict]:
 
 
 def print_results(results: list[dict], show_svg: bool = False) -> None:
+    """Pretty print search results."""
     print(f"\n{'-'*60}")
     for r in results:
         print(f"[{r['rank']}] score={r['score']:.4f}  id={r['id']}")
@@ -73,6 +78,7 @@ def print_results(results: list[dict], show_svg: bool = False) -> None:
 
 
 if __name__ == "__main__":
+    # CLI
     parser = argparse.ArgumentParser(description="Semantic SVG search.")
     parser.add_argument("query", help="Text query, e.g. 'sunset over mountains'")
     parser.add_argument("--top-k", type=int, default=5, help="Number of results.")
@@ -82,6 +88,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--json", dest="as_json", action="store_true", help="Output results as JSON."
     )
+
     args = parser.parse_args()
 
     results = search(args.query, top_k=args.top_k, show_svg=args.show_svg)
