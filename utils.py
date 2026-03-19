@@ -1,4 +1,4 @@
-"""Shared utilities for the SVG semantic search system."""
+
 
 import re
 import json
@@ -6,14 +6,13 @@ import xml.etree.ElementTree as ET
 from pathlib import Path
 import numpy as np
 
-# ── Paths ────────────────────────────────────────────────────────────────────
+
 _HERE = Path(__file__).parent
 INDEX_DIR = _HERE / "index"
 METADATA_FILE = INDEX_DIR / "metadata.json"
 FAISS_INDEX_FILE = INDEX_DIR / "vectors.index"
 DATASET_DIR = _HERE / "dataset" / "dataset.csv"
 
-# ── Color  ────────────────────────────────────────────────────────────────────
 COMMON_COLORS = {
 "black":"#000000","white":"#FFFFFF","gray":"#808080","silver":"#C0C0C0",
 "red":"#FF0000","darkred":"#8B0000","crimson":"#DC143C","salmon":"#FA8072",
@@ -28,7 +27,6 @@ COMMON_COLORS = {
 "beige":"#F5F5DC","wheat":"#F5DEB3","ivory":"#FFFFF0"
 }
 
-# ── Model ────────────────────────────────────────────────────────────────────
 MODEL_NAME = "all-MiniLM-L6-v2"
 
 _model = None  # lazy singleton
@@ -44,8 +42,6 @@ def get_model():
     return _model
 
 
-# ── Metadata helpers ─────────────────────────────────────────────────────────
-
 def load_metadata() -> dict:
     if METADATA_FILE.exists():
         with open(METADATA_FILE, encoding="utf-8") as f:
@@ -58,8 +54,6 @@ def save_metadata(meta: dict) -> None:
     with open(METADATA_FILE, "w", encoding="utf-8") as f:
         json.dump(meta, f, ensure_ascii=False)
 
-
-# ── SVG auto-description ─────────────────────────────────────────────────────
 
 def extract_svg_description(svg_content: str) -> str:
     """
@@ -132,8 +126,6 @@ def extract_svg_description(svg_content: str) -> str:
     return " | ".join(parts) if parts else "SVG graphic"
 
 
-# ── Embedding helper ─────────────────────────────────────────────────────────
-
 def embed_texts(texts: list[str], batch_size: int = 64) -> np.ndarray:
     """Return L2-normalised float32 embeddings for a list of strings."""
     model = get_model()
@@ -145,16 +137,13 @@ def embed_texts(texts: list[str], batch_size: int = 64) -> np.ndarray:
         convert_to_numpy=True,
     ).astype(np.float32)
 
-# ── Color mapping ─────────────────────────────────────────────────────────
 def hex_to_rgb(h):
     h = h.lstrip("#")
     return tuple(int(h[i:i+2], 16) for i in (0,2,4))
 
 
 def closest_color(hex_color):
-
     r,g,b = hex_to_rgb(hex_color)
-
     return min(
         COMMON_COLORS,
         key=lambda name: sum(
@@ -164,7 +153,6 @@ def closest_color(hex_color):
 
 
 def normalize_svg_colors(svg):
-
     return re.sub(
         r"#([0-9a-fA-F]{6})",
         lambda m: closest_color(m.group(0)),
