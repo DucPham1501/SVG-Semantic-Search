@@ -21,7 +21,7 @@ logging.set_verbosity_error()
 
 
 def clean_description(raw: str) -> str:
-    """Strip surrounding quotes / whitespace left by the CSV format."""
+    """Basic cleanup for CSV text fields."""
     return str(raw).strip().strip("'\"").strip()
 
 
@@ -29,28 +29,28 @@ def build_index(csv_path: str = DATASET_DIR, batch_size: int = 64) -> None:
     print(f"Loading dataset from '{csv_path}'…")
     df = pd.read_csv(csv_path)
 
+    # validate schema
     if "description" not in df.columns or "svg" not in df.columns:
         raise ValueError("CSV must have 'description' and 'svg' columns.")
 
+    # clean descriptions
     df["description"] = df["description"].apply(clean_description)
     n = len(df)
     print(f"  {n} entries loaded.")
 
-    # ── Embeddings ────────────────────────────────────────────────────────────
+    # generate embeddings
     print("Generating embeddings")
     embeddings = embed_texts(df["description"].tolist(), batch_size=batch_size)
     dim = embeddings.shape[1]
 
-    # ── FAISS index ───────────────────────────────────────────────────────────
-    # IndexFlatIP  =  exact cosine similarity (vectors are already L2-normalised)
-    # For large-scale use, swap for IndexIVFFlat or IndexHNSWFlat.
+    # build FAISS index (cosine similarity via normalized vectors)
     index = faiss.IndexFlatIP(dim)
     index.add(embeddings)
 
     INDEX_DIR.mkdir(exist_ok=True)
     faiss.write_index(index, str(FAISS_INDEX_FILE))
 
-    # ── Metadata ──────────────────────────────────────────────────────────────
+    # build metadata store
     metadata = {
         "model": "all-MiniLM-L6-v2",
         "dim": dim,
@@ -59,10 +59,11 @@ def build_index(csv_path: str = DATASET_DIR, batch_size: int = 64) -> None:
             for i, row in df.iterrows()
         ],
     }
+
     with open(METADATA_FILE, "w", encoding="utf-8") as f:
         json.dump(metadata, f, ensure_ascii=False)
 
-    print(f"\nIndex built successfully.")
+    print("\nIndex built successfully.")
     print(f"  Entries  : {n}")
     print(f"  Dimension: {dim}")
     print(f"  Files    : {FAISS_INDEX_FILE}, {METADATA_FILE}")
