@@ -1,8 +1,66 @@
 # SVG Semantic Search
 
-A semantic search system that retrieves SVG images from natural-language text queries.
+SVG Semantic Search is an end-to-end semantic retrieval system that enables searching SVG images using natural language queries. The system leverages lightweight transformer-based embeddings to encode textual descriptions into dense vector representations, which are indexed using FAISS for efficient similarity search. By applying vector normalization and cosine similarity, the system delivers accurate and low-latency retrieval of semantically relevant SVG assets.
+
+The architecture is organized into two core components: the Indexing Pipeline and the Query Pipeline. The Indexing Pipeline processes and transforms raw dataset entries into a structured vector index, while the Query Pipeline performs real-time semantic search over this index. This separation ensures high performance, scalability, and a clean modular design, making the system easy to extend into multimodal retrieval or production-grade search services.
 
 ---
+
+## 🔄 System Flow
+
+                ┌──────────────────────┐
+                │     CSV Dataset      │
+                │ (description, SVG)   │
+                └─────────┬────────────┘
+                          │
+                          ▼
+                ┌──────────────────────┐
+                │   Embedding Model    │
+                │ (text → vector)      │
+                └─────────┬────────────┘
+                          │
+                          ▼
+                ┌──────────────────────┐
+                │      FAISS Index     │
+                │ (vector storage)     │
+                └─────────┬────────────┘
+                          │
+        ┌─────────────────┴─────────────────┐
+        │                                   │
+        ▼                                   ▼
+┌───────────────┐                 ┌────────────────────┐
+│   User Query  │                 │   Add New SVG      │
+│ (description) │                 │                    │
+└───────┬───────┘                 └─────────┬──────────┘
+        │                                   │
+        ▼                                   ▼
+┌───────────────┐               ┌────────────────────────────┐
+│   Embedding   │               │   Has Description?         │
+│ (query → vec) │               └─────────┬──────────────────┘
+└───────┬───────┘                         │
+        │                                 │ No
+        ▼                                 ▼
+┌───────────────┐               ┌────────────────────────────┐
+│  Similarity   │               │   LLM Generates Description│
+│    Search     │               └─────────┬──────────────────┘
+└───────┬───────┘                         │
+        │                                 ▼
+        ▼                      ┌────────────────────────────┐
+┌───────────────┐             │  Embedding (new desc)       │
+│   Top-K SVG   │             └─────────┬──────────────────┘
+│   Results     │                       │
+└───────────────┘                       ▼
+                                ┌────────────────────────────┐
+                                │     Update FAISS Index     │
+                                └────────────────────────────┘
+
+## Key Features
+
+- Semantic search using dense embeddings instead of keyword matching  
+- Fast and scalable retrieval powered by FAISS vector indexing  
+- Automatic description generation using a local LLM for unlabeled SVGs  
+- Incremental indexing without rebuilding the entire system  
+- Modular pipeline design (Indexing vs Query separation)  
 
 ## Environment setup
 
