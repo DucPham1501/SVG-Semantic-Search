@@ -6,8 +6,8 @@ The architecture is organized into two core components: the Indexing Pipeline an
 
 ---
 
-## 🔄 System Flow
-
+## System Flow
+```
                 ┌──────────────────────┐
                 │     CSV Dataset      │
                 │ (description, SVG)   │
@@ -53,6 +53,7 @@ The architecture is organized into two core components: the Indexing Pipeline an
                                 ┌────────────────────────────┐
                                 │     Update FAISS Index     │
                                 └────────────────────────────┘
+```
 
 ## Key Features
 
